@@ -1,0 +1,5 @@
+version "4.4"
+
+#include "ZScript/hdfx/blood.zsc"
+#include "ZScript/hdfx/dust.zsc"
+#include "ZScript/hdfx/gibs.zsc"

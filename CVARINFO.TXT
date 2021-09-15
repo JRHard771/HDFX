@@ -1,0 +1,7 @@
+server int hdfx_bloodcount = 1;
+server int hdfx_bloodtime = 30;
+server float hdfx_bloodvelz = 0.0;
+server int hdfx_gibcount = 13;
+server int hdfx_gibtime = 30;
+server int hdfx_dustcount = 1;
+server int hdfx_dustrate = 1;

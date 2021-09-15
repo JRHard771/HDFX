@@ -1,0 +1,123 @@
+class HDFXDust : Actor
+{
+    int hl, ttl;
+    Vector3 drift_v;
+    
+    override void BeginPlay()
+    {
+        super.BeginPlay();
+        
+		if (!level.IsPointInLevel(Pos))
+		{
+			Destroy();
+			return;
+		}
+    }
+    
+    override void PostBeginPlay()
+    {
+        hl = random(27,88);
+        ttl = hl * 2;
+        vel += (frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4));
+        drift_v = ((frandom(-0.4,0.4), frandom(-0.4,0.4), frandom(-0.4,0.4)) - vel) * 1.0/ttl;
+    }
+
+    override void Tick()
+    {
+        if (isFrozen())
+            return;
+        
+        UpdateWaterLevel();
+        
+        //This block manually advances states. Ripped straight from FastProjectile class:
+        if (tics != -1)
+        {
+            if (tics > 0)
+                tics--;
+            while (!tics)
+            {
+                if (!SetState (CurState.NextState)) // mobj was removed
+                    return;
+            }
+        }
+        
+        SetOrigin(pos + vel, true);
+        
+        vel += drift_v;
+        
+        if (--ttl == 0)
+        {
+            Destroy();
+        }
+        else if (ttl < hl)
+        {
+            alpha = double(ttl)/hl;
+        }
+        else
+        {
+            alpha = 2 - double(ttl)/hl;
+        }
+        
+        double dist_factor = min(1.0, Distance3D(players[consoleplayer].mo)/96);
+        alpha *= alpha * dist_factor;
+    }
+    
+    default
+    {
+        Height 2;
+        Radius 1;
+        Alpha 0;
+        RenderStyle "Translucent";
+        +FORCEXYBILLBOARD;
+        +NOGRAVITY;
+    }
+    
+    states
+    {
+    Spawn:
+        DUST Y -1;
+        Stop;
+    }
+}
+
+class HDFXDustAura : Inventory
+{
+    default
+    {
+        +INVENTORY.AUTOACTIVATE;
+        +INVENTORY.PERSISTENTPOWER;
+        +INVENTORY.UNDROPPABLE;
+        +INVENTORY.UNTOSSABLE;
+        Inventory.MaxAmount 1;
+    }
+    
+    override void DoEffect()
+    {
+        super.DoEffect();
+        if (!owner || multiplayer || level.time % hdfx_dustrate)
+            return;
+        double vx = (owner.vel.x * cos(owner.angle) + owner.vel.y * sin(angle)) * 35;
+        double vy = (owner.vel.x * sin(owner.angle) + owner.vel.y * cos(angle)) * 35;
+        double vz = owner.vel.z * 35;
+        for (int i = 0; i < hdfx_dustcount; i++)
+        {
+            owner.A_SpawnItemEx("HDFXDust",
+                vx+frandom(-512,512), vy+frandom(-720,720), vz+frandom(-171,267),
+                0,0,0,0,0,
+                0); // Fail chance
+        }
+    }
+}
+
+class HDFXDustHandler : EventHandler
+{    
+	override void PlayerEntered(PlayerEvent e)
+	{
+        players[e.PlayerNumber].mo.A_GiveInventory("HDFXDustAura", 1);
+	}
+	
+	override void PlayerRespawned(PlayerEvent e)
+	{
+		PlayerEntered(e);
+	}
+}

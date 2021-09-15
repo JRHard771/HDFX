@@ -1,0 +1,281 @@
+class HDFXMasterBlood : HDPuff replaces HDMasterBlood
+{
+	default
+	{
+		+DONTTHRUST
+		+THRUACTORS
+		+NOTELEPORT
+		+ALLOWPARTICLES
+		+PUFFGETSOWNER
+		alpha 1;
+		gravity 0;
+		hdpuff.startvelz 0;
+		hdpuff.fadeafter 0;
+		hdpuff.decel 1;
+		hdpuff.fade 1;
+		hdpuff.grow 0;
+		hdpuff.minalpha 0.03;
+	}
+    
+	override void postbeginplay()
+	{
+		super.postbeginplay();
+		let hdmb=hdmobbase(target);
+		if(hdmb && !bmissilemore && hdmb.shields > 0)
+		{
+			A_SetTranslucent(1,1);
+			startvelz = 1.6;
+			decel = 0.86;
+			fade = 0.88;
+			grow = 0.03;
+			grav = -0.6;
+			scale *= 0.4;
+			setstatelabel("spawnshield");
+			bnointeraction=true;
+			return;
+		}
+		if(!bambush)
+			A_StartSound("misc/bulletflesh",CHAN_BODY,volume:0.2);
+	}
+    
+	states
+    {
+	Spawn:
+		TNT1 A 0 NoDelay
+		{
+			if (target)
+			{
+				angle = AngleTo(target) + frandom(-11.25,11.25);
+				SetOrigin((pos.xy + (target.pos.xy - pos.xy).unit(), pos.z), false);
+			}
+			else
+				angle = frandom(0,360);
+            for (int i = 0; i < hdfx_bloodcount; i++)
+                A_SpawnItemEx("HDFXBlood",flags: SXF_TRANSFERTRANSLATION);
+		}
+		stop;
+		TNT1 A 0
+		{
+			if (target)
+			{
+				angle = AngleTo(target) + frandom(-22.5,22.5);
+				SetOrigin((pos.xy + (target.pos.xy - pos.xy).unit(), pos.z), false);
+			}
+			else
+				angle = frandom(0,360);
+            for (int i = 0; i < hdfx_bloodcount+1; i++)
+                A_SpawnItemEx("HDFXBlood",flags: SXF_TRANSFERTRANSLATION);
+		}
+		stop;
+		TNT1 A 0
+		{
+			if (target)
+			{
+				angle = AngleTo(target) + frandom(-45,45);
+				SetOrigin((pos.xy + (target.pos.xy - pos.xy).unit(), pos.z), false);
+			}
+			else
+				angle = frandom(0,360);
+            for (int i = 0; i < hdfx_bloodcount+2; i++)
+                A_SpawnItemEx("HDFXBlood",flags: SXF_TRANSFERTRANSLATION);
+		}
+		stop;
+	spawnshield:
+		TFOG A 0 A_SetScale(frandom(0.2,0.5));
+		TFOG ABCDEFGHIJ 3 bright A_FadeOut(0.05);
+		stop;
+	}
+}
+
+class HDFXBlood : Actor replaces Blood
+{
+    static const String[] liquidpics = { "NUKAGE1", "NUKAGE2", "NUKAGE3", "BLOOD1", "BLOOD2", "BLOOD3", "SLIME01",
+		"SLIME02", "SLIME03", "SLIME04", "SLIME05", "SLIME06", "SLIME07", "SLIME08", "LAVA1", "LAVA2", "LAVA3", "LAVA4",
+		"FWATER1", "FWATER2", "FWATER3", "FWATER4", "F_HWATR1", "F_HWATR2", "F_HWATR3", "F_PWATR1", "F_PWATR2",
+		"F_PWATR3", "P_VWATR1", "F_VWATR2", "F_VWATR3", "F_WATR01","F_WATR02", "F_WATR03", "FLATHUH1",
+		"FLATHUH2", "FLATHUH3", "FLATHUH4", "FLTFLWW1", "FLTFLWW2", "FLTFLWW3", "FLTWAWA1", "FLTWAWA2", "FLTWAWA3",
+		"FLTLAVA1", "FLTLAVA2", "FLTLAVA3", "FLTLAVA4", "FLTSLUD1", "FLTSLUD2", "FLTSLUD3", "X_001", "X_002", "X_003",
+		"X_004", "X_005", "X_006", "X_007", "X_008", "X_009", "X_010", "X_011" };
+
+    bool airborne, liquid;
+    int bloodmass, phase;
+    
+    override void PostBeginPlay()
+    {
+        super.PostBeginPlay();
+        bloodmass = random(1,3);
+        liquid = false;
+        airborne = true;
+        alpha = frandom(bloodmass/3.0,1.0);
+        bXFlip = random(0,1);
+        bYFlip = random(0,1);
+        vel = (frandom(-3, 3), frandom(-3, 3), frandom(0, hdfx_bloodvelz)) + (cos(angle), sin(angle), 0) * frandom(0,3);
+        vel /= bloodmass;
+        phase = random(0,11);
+    }
+    
+    override void Tick()
+    {
+        super.Tick();
+        if (gravity < 1.0)
+            gravity += 0.1;
+        if (pos.z < floorz + 1)
+        {
+            if (airborne)
+            {
+                A_StartSound("blood/drip", CHAN_BODY, CHANF_NOSTOP, 1.0, frandom(0.5,20.0));
+                angle = random(0, 3) * 90 - cursector.GetAngle(0);
+                airborne = false;
+                if (!liquid)
+                {
+                    string floorname = TexMan.GetName(floorpic);
+                    for (int i = 0; i < liquidpics.size(); i++)
+                    {
+                        if (floorname == liquidpics[i])
+                        {
+                            liquid = true;
+                            sprite = GetSpriteIndex("BLUF");
+                            A_SetTics(0);
+                            break;
+                        }
+                    }
+                }
+            }
+            bFlatSprite = true;
+            bMoveWithSector = true;
+            if (abs(vel.x)+abs(vel.y)+abs(vel.z) == 0)
+            {
+                Vector3 rpos = (int(pos.x), int(pos.y), pos.z);
+                SetOrigin(rpos, false);
+                if (level.time % 12 == phase)
+                {
+                    int checkdist = 6;
+                    if (bloodmass < 3) checkdist = bloodmass + 2;
+                    for (double checkx = pos.x - checkdist; checkx <= pos.x + checkdist; checkx += checkdist)
+                    {
+                        for (double checky = pos.y - checkdist; checky <= pos.y + checkdist; checky += checkdist)
+                        {
+                            Sector checksec = level.PointInSector((checkx, checky));
+                            if (cursector == checksec)
+                                continue;
+                            double checkz = getZAt(checkx, checky, flags: GZF_ABSOLUTEPOS);
+                            if (checkz < pos.z)
+                            {
+                                SetOrigin((checkx, checky, pos.z), false);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            airborne = true;
+            bFlatSprite = false;
+            bMoveWithSector = false;
+        }
+    }
+    
+    Default
+	{
+        -FLOORCLIP
+        +FORCEXYBILLBOARD
+		+NOBLOCKMAP
+		+DONTTHRUST
+		+THRUACTORS
+		+NOTELEPORT
+		+ALLOWPARTICLES
+		+PUFFGETSOWNER
+        RenderStyle "Translucent";
+        BounceSound "blood/drip";
+        gravity 0.01;
+        friction 0.1;
+        maxStepHeight 1;
+        radius 1;
+        height 1;
+	}
+	States
+	{
+	Spawn:
+        BLUF A 0;
+        BLUD X 2 A_JumpIf(bloodmass == 1, 3);
+        BLUD Y 2 A_JumpIf(bloodmass == 2, 2);
+        BLUD Z 2;
+        #### # 1
+        {
+            if (liquid)
+            {
+                sprite = GetSpriteIndex("BLUF");
+                A_SetTics(0);
+            }
+            else if (hdfx_bloodtime > 0)
+                A_SetTics(hdfx_bloodtime * random(18,52));
+            else
+                A_SetTics(hdfx_bloodtime);
+        }
+    Fade:
+        #### # 1;
+        #### # 0
+        {
+            alpha -= 0.01;
+            if (liquid == 1)
+                scale += (0.01,0.01);
+            if (alpha > 0)
+                return ResolveState("Fade");
+            return ResolveState(NULL);
+        }
+        TNT1 A 1;
+        stop;
+    }
+}
+
+class HDFXBloodTrailFloor : HDFXBlood replaces HDBloodTrailFloor
+{
+    override void PostBeginPlay()
+    {
+        super.PostBeginPlay();
+        vel = (0,0,0);
+    }
+}
+
+class HDFXBloodSpawner : Actor
+{
+    States
+    {
+    Spawn:
+        TNT1 AAAA 0 A_SpawnItemEx("HDFXBlood",flags: SXF_TRANSFERTRANSLATION);
+        stop;
+    }
+}
+
+class HDFXCacoBlood : HDFXBloodSpawner replaces CacoShellBlood
+{
+	override void PostBeginPlay()
+    {
+		A_StartSound("misc/bulletflesh",volume:0.02);
+        double burstz=pos.z+height*0.5;
+		double minpch=burstz-floorz<56?9:90;
+		double maxpch=ceilingz-burstz<56?-9:-90;
+        int number=random(1,7);
+        double minvel=1;
+        double maxvel=7;
+		burstz-=pos.z;
+		bool gbg;actor frg;
+		for(int i=0;i<number;i++){
+			double pch=frandom(minpch,maxpch);
+			double vl=frandom(minvel,maxvel);
+			[gbg,frg]=A_SpawnItemEx(
+				"CacoChunk",
+				0,0,burstz,
+				vl*cos(pch),0,vl*sin(-pch),
+				frandom(0,360),
+				SXF_NOCHECKPOSITION|SXF_TRANSFERPITCH|SXF_TRANSFERPOINTERS
+			);
+			if(gbg){
+				frg.vel+=vel;
+				if(HDBulletActor(frg))frg.bincombat=true; //work around hack that normally lets HDBulletActor out
+			}
+		}
+	}
+}

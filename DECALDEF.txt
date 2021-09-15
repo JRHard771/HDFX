@@ -1,0 +1,170 @@
+decal BulletChip1
+{
+	pic CHIP1
+	shade "00 00 00"
+}
+
+decal BulletChip2
+{
+	pic CHIP2
+	shade "00 00 00"
+}
+
+decal BulletChip3
+{
+	pic CHIP3
+	shade "00 00 00"
+}
+
+decal BulletChip4
+{
+	pic CHIP4
+	shade "00 00 00"
+}
+
+decal BulletChip5
+{
+	pic CHIP5
+	shade "00 00 00"
+}
+
+decal BulletChipSmall1
+{
+	pic CHIP1
+	translucent 0.5
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+}
+
+decal BulletChipSmall2
+{
+	pic CHIP2
+	translucent 0.5
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+}
+
+decal BulletChipSmall3
+{
+	pic CHIP3
+	translucent 0.5
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+}
+
+decal BulletChipSmall4
+{
+	pic CHIP4
+	translucent 0.5
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+}
+
+decal BulletChipSmall5
+{
+	pic CHIP5
+	translucent 0.5
+	shade "00 00 00"
+	randomflipx
+	randomflipy
+}
+
+stretcher BloodStretcher
+{
+	StretchTime	15
+	GoalY		1.0
+}
+
+slider BloodSlider
+{
+	SlideTime	15
+	DistY		-1
+}
+
+combiner BloodSmearer
+{
+	BloodStretcher
+	BloodSlider
+}
+
+decal BloodSmear1
+{
+	pic BSMEAR1
+    opaqueblood
+	randomflipx
+    y-scale 0.5
+	animator BloodSmearer
+}
+
+decal BloodSmear2
+{
+	pic BSMEAR2
+    opaqueblood
+	randomflipx
+    y-scale 0.5
+	animator BloodSmearer
+}
+
+decal BloodSplat1
+{
+	pic BSPLAT1
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decal BloodSplat2
+{
+	pic BSPLAT2
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decal BloodSplat3
+{
+	pic BSPLAT3
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decal BloodSplat4
+{
+	pic BSPLAT4
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decal BloodSplat5
+{
+	pic BSPLAT5
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decal BloodSplat6
+{
+	pic BSPLAT6
+	translucent 0.84
+    opaqueblood
+	randomflipx
+	randomflipy
+}
+
+decalgroup BloodSplat
+{
+	BloodSplat1 1
+	BloodSplat2 1
+}
