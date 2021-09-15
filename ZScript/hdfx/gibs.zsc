@@ -110,7 +110,7 @@ class HDFXGibletA : Actor
 	Death:
 		"----" A 1
 		{
-			A_PlaySound("blood/bounce",volume:0.25);
+			A_StartSound("blood/bounce",volume:0.25);
             for (int i = 0; i < hdfx_bloodcount; i++)
                 A_SpawnItemEx("HDFXBlood", -vel.x, -vel.y, -vel.z, 0, 0, 0, 0, SXF_ABSOLUTEPOSITION|SXF_TRANSFERTRANSLATION);
 			bFORCEXYBILLBOARD = false;
@@ -134,7 +134,7 @@ class HDFXGibletA : Actor
 	Bounce:
 		"----" A 1
 		{
-			A_PlaySound("blood/bounce",volume:clamp(vel.length()*0.05, 0.25, 1.0));
+			A_StartSound("blood/bounce",volume:clamp(vel.length()*0.05, 0.25, 1.0));
             for (int i = 0; i < hdfx_bloodcount; i++)
                 A_SpawnItemEx("HDFXBlood", 0, 0, 0, 0, 0, 0, 0, SXF_TRANSFERTRANSLATION);
 			rollFactor = clamp(frandom(-2.0,2.0) * rollFactor, -45.0, 45.0);
@@ -300,10 +300,10 @@ class HDFXGibSpray : Actor
 	{
         Actor giblet;
         if (target)
-            giblet = Actor.Spawn(type,(pos.xy + AngleToVector(frandom(0,360),frandom(0,target.radius*1.5)), pos.z + frandom(0,target.height*3)));
+            giblet = Actor.Spawn(type,(pos.xy + AngleToVector(frandom(0,360),frandom(0,target.radius*2)), pos.z + frandom(0,target.height*4)));
         else
             giblet = Actor.Spawn(type,(pos.xy + AngleToVector(frandom(0,360),frandom(0,16)), pos.z + frandom(0,32)));
-		giblet.Vel3DFromAngle(3.5,frandom(0,360),frandom(-90,0));
+		giblet.Vel3DFromAngle(2,frandom(0,360),frandom(-90,0));
         giblet.vel += vel;
 		giblet.translation = translation;
 	}
@@ -325,7 +325,7 @@ class HDFXGibSpray : Actor
             for (int i = 0; i < hdfx_bloodcount + 9; i++)
                 A_SpawnItemEx("HDFXBlood", 0, 0, frandom(0,64), 0, 0, 0, 0, SXF_TRANSFERTRANSLATION);
             int gib = 0;
-			A_PlaySound("blood/gib");
+			A_StartSound("blood/gib");
             if (hdfx_gibcount < 13)
             {
                 for (int i = 0; i < hdfx_gibcount; i++)

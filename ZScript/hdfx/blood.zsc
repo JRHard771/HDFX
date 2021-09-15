@@ -15,27 +15,7 @@ class HDFXMasterBlood : HDPuff replaces HDMasterBlood
 		hdpuff.fade 1;
 		hdpuff.grow 0;
 		hdpuff.minalpha 0.03;
-	}
-    
-	override void postbeginplay()
-	{
-		super.postbeginplay();
-		let hdmb=hdmobbase(target);
-		if(hdmb && !bmissilemore && hdmb.shields > 0)
-		{
-			A_SetTranslucent(1,1);
-			startvelz = 1.6;
-			decel = 0.86;
-			fade = 0.88;
-			grow = 0.03;
-			grav = -0.6;
-			scale *= 0.4;
-			setstatelabel("spawnshield");
-			bnointeraction=true;
-			return;
-		}
-		if(!bambush)
-			A_StartSound("misc/bulletflesh",CHAN_BODY,volume:0.2);
+
 	}
     
 	states
