@@ -94,19 +94,23 @@ class HDFXDustAura : Inventory
     override void DoEffect()
     {
         super.DoEffect();
-        if (!owner || multiplayer || level.time % hdfx_dustrate)
-            return;
-        double vx = (owner.vel.x * cos(owner.angle) + owner.vel.y * sin(angle)) * 35;
-        double vy = (owner.vel.x * sin(owner.angle) + owner.vel.y * cos(angle)) * 35;
-        double vz = owner.vel.z * 35;
-        for (int i = 0; i < hdfx_dustcount; i++)
-        {
-            owner.A_SpawnItemEx("HDFXDust",
-                vx+frandom(-512,512), vy+frandom(-720,720), vz+frandom(-171,267),
-                0,0,0,0,0,
-                0); // Fail chance
-        }
-    }
+		if (!owner || multiplayer || level.time % hdfx_dustrate)
+				return;
+			double vx = (owner.vel.x * cos(owner.angle) + owner.vel.y * sin(angle)) * 35;
+			double vy = (owner.vel.x * sin(owner.angle) + owner.vel.y * cos(angle)) * 35;
+			double vz = owner.vel.z * 35;
+		for (int i = 0; i < hdfx_dustcount; i++)
+		{
+			owner.A_SpawnItemEx("HDFXDust",
+				vx+frandom(-512,512), vy+frandom(-720,720), vz+frandom(-171,267),
+				0,0,0,0,0,
+				0); // Fail chance
+		}
+		if (hdfx_dustrate<1) //just a failsafe check if for some reason hdfx_dustrate is 0
+		{
+			return;
+		}
+	}
 }
 
 class HDFXDustHandler : EventHandler
